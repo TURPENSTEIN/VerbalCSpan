@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audio-Span: Audio-Verbal Complex Working Memory Trainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050505;
+      --card-bg: #0c0d0e;
+      --card-border: #1e2227;
+      --text: #f4f4f5;
+      --text-muted: #8892b0;
+      --emerald: #10b981;
+      --cyan: #06b6d4;
+      --crimson: #ef4444;
+      --amber: #f59e0b;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'JetBrains Mono', monospace, ui-monospace, monospace;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+    header {
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(12, 13, 14, 0.85);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--emerald);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--emerald);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    }
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .badge {
+      font-size: 0.65rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+    .nav-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    button.btn {
+      background: #14171b;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+    button.btn:hover {
+      background: #1c2128;
+      border-color: #3b4252;
+    }
+    button.btn-primary {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid var(--emerald);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+    }
+    button.btn-primary:hover {
+      background: rgba(16, 185, 129, 0.25);
+    }
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .stat-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 640px) {
+      .stat-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-top: 0.2rem;
+      color: #fff;
+    }
+    .streak-dots {
+      display: flex;
+      gap: 4px;
+      margin-top: 0.4rem;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22262d;
+    }
+    .dot.active {
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+    .hud-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+    .gate-warning {
+      width: 100%;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid var(--crimson);
+      color: #fca5a5;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.25);
+    }
+    .wave-visualizer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 60px;
+    }
+    .wave-bar {
+      width: 5px;
+      height: 20px;
+      background: var(--cyan);
+      border-radius: 3px;
+      transition: height 0.1s ease;
+    }
+    .wave-bar.speaking {
+      animation: pulse 0.5s infinite alternate ease-in-out;
+    }
+    @keyframes pulse {
+      0% { height: 10px; background: var(--cyan); }
+      100% { height: 50px; background: var(--emerald); }
+    }
+    .timer-track {
+      width: 100%;
+      max-width: 460px;
+      height: 6px;
+      background: #1b1f24;
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+    .timer-fill {
+      height: 100%;
+      background: var(--cyan);
+      width: 100%;
+      transition: width 0.05s linear;
+    }
+    .distractor-actions {
+      display: flex;
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 440px;
+    }
+    .btn-tf {
+      flex: 1;
+      padding: 1.1rem;
+      font-size: 1.25rem;
+      font-weight: 800;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.1s ease;
+    }
+    .btn-tf span.sub {
+      font-size: 0.7rem;
+      font-weight: normal;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .btn-true {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+    .btn-true:hover, .btn-true:focus {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: var(--emerald);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    }
+    .btn-false {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+    .btn-false:hover, .btn-false:focus {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: var(--crimson);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+    }
+    /* Recall keypad */
+    .slot-row {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .slot {
+      width: 52px;
+      height: 60px;
+      background: #111418;
+      border: 1.5px solid var(--card-border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .slot.active {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+    }
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      max-width: 480px;
+      width: 100%;
+    }
+    .key-btn {
+      background: #14171b;
+      border: 1px solid var(--card-border);
+      color: #f4f4f5;
+      padding: 0.85rem 0.5rem;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .key-btn:hover {
+      background: #1f242c;
+      border-color: var(--cyan);
+    }
+    /* Feedback */
+    .compare-seq {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+    .compare-box {
+      width: 44px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      border-radius: 6px;
+      font-size: 1.1rem;
+    }
+    .box-match {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--emerald);
+      color: #34d399;
+    }
+    .box-mismatch {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--crimson);
+      color: #f87171;
+    }
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1.5rem;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    select, input[type="range"] {
+      width: 100%;
+      background: #111418;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.6rem;
+      border-radius: 6px;
+      outline: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.6rem 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+    }
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">Audio-Span <span class="badge">Complex Span</span></div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn" id="btn-stats" onclick="openModal('modal-stats')">📊 Stats</button>
+      <button class="btn" id="btn-settings" onclick="openModal('modal-settings')">⚙️ Settings</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="gate-alert" class="gate-warning">
+      <span>⚠️</span>
+      <div>
+        <strong>Critical Gate Alert:</strong> Distractor accuracy is <span id="warn-acc">0%</span> (below 85% requirement). You are sacrificing processing speed/accuracy to rehearse targets. Focus on answering distractors correctly!
+      </div>
+    </div>
+
+    <div class="stat-bar">
+      <div class="stat-card">
+        <div class="stat-label">Current Span</div>
+        <div class="stat-val" id="stat-current-span" style="color: var(--cyan);">3</div>
+        <div class="streak-dots" id="streak-pips">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Max Span</div>
+        <div class="stat-val" id="stat-max-span" style="color: var(--emerald);">3</div>
+        <div class="stat-label" style="margin-top: 4px;">Record high</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Distractor Acc.</div>
+        <div class="stat-val" id="stat-dist-acc">100%</div>
+        <div class="stat-label" style="margin-top: 4px;">Gate: &ge;85%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Mean RT</div>
+        <div class="stat-val" id="stat-dist-rt">-- ms</div>
+        <div class="stat-label" style="margin-top: 4px;">Verification speed</div>
+      </div>
+    </div>
+
+    <!-- MAIN INTERACTIVE STAGE -->
+    <div class="hud-box" id="hud-box">
+      <!-- State: IDLE -->
+      <div id="view-idle" style="display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
+        <div style="font-size: 0.95rem; color: var(--text-muted); max-width: 500px;">
+          Complex working memory paradigm interleaving a <strong>Primary Target Memory Stream</strong> with an interfering <strong>Audio Distractor Verification Task</strong>.
+        </div>
+        <div style="background: #0f1216; border: 1px dashed var(--card-border); padding: 1rem; border-radius: 8px; font-size: 0.85rem; text-align: left; max-width: 480px;">
+          <div>1. Listen to spoken target (e.g. <em>"Letter: M"</em>)</div>
+          <div>2. Fast-verify spoken distractor (e.g. <em>"Is 4 + 2 = 6?"</em>)</div>
+          <div>3. Recall all targets in exact chronological sequence</div>
+        </div>
+        <button class="btn btn-primary" style="padding: 0.9rem 2.2rem; font-size: 1.1rem;" onclick="startTrial()">▶ Start Training Session</button>
+      </div>
+
+      <!-- State: PRESENTATION (TARGET OR DISTRACTOR) -->
+      <div id="view-active" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 1.5rem;">
+        <div style="font-size: 0.85rem; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;" id="active-step-indicator">
+          Item 1 of 3
+        </div>
+
+        <div class="wave-visualizer">
+          <div class="wave-bar speaking"></div>
+          <div class="wave-bar speaking" style="animation-delay: 0.1s;"></div>
+          <div class="wave-bar speaking" style="animation-delay: 0.2s;"></div>
+          <div class="wave-bar speaking" style="animation-delay: 0.3s;"></div>
+          <div class="wave-bar speaking" style="animation-delay: 0.4s;"></div>
+          <div class="wave-bar speaking" style="animation-delay: 0.15s;"></div>
+        </div>
+
+        <div id="target-ui" style="display: none;">
+          <div style="font-size: 1.1rem; color: var(--text-muted);">Listen carefully to target...</div>
+          <div style="font-size: 0.8rem; color: #556070; margin-top: 0.5rem;">[ Audio-only phonological encoding ]</div>
+        </div>
+
+        <div id="distractor-ui" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 1rem;">
+          <div style="font-size: 1.35rem; font-weight: 700; color: #fff;" id="distractor-prompt-text">
+            Is 4 + 2 = 6?
+          </div>
+          <div class="timer-track">
+            <div class="timer-fill" id="distractor-timer-bar"></div>
+          </div>
+          <div class="distractor-actions">
+            <button class="btn-tf btn-true" onclick="handleDistractorAnswer(true)">
+              TRUE
+              <span class="sub">Key [T] or [←]</span>
+            </button>
+            <button class="btn-tf btn-false" onclick="handleDistractorAnswer(false)">
+              FALSE
+              <span class="sub">Key [F] or [→]</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- State: RECALL -->
+      <div id="view-recall" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 1.25rem;">
+        <div style="font-size: 1.1rem; font-weight: 700; color: var(--cyan);">Recall Target Sequence in Order</div>
+        <div class="slot-row" id="recall-slots"></div>
+        <div class="keypad-grid" id="recall-keypad"></div>
+        <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+          <button class="btn" onclick="handleRecallBackspace()">⌫ Backspace</button>
+          <button class="btn" onclick="handleRecallClear()">Clear</button>
+          <button class="btn btn-primary" onclick="submitRecall()">Submit Sequence</button>
+        </div>
+      </div>
+
+      <!-- State: FEEDBACK -->
+      <div id="view-feedback" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 1.2rem;">
+        <div id="feedback-headline" style="font-size: 1.5rem; font-weight: 800;"></div>
+        
+        <div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Sequence Comparison:</div>
+          <div class="compare-seq" id="feedback-sequence-row"></div>
+        </div>
+
+        <div style="background: #101419; border: 1px solid var(--card-border); padding: 1rem; border-radius: 8px; width: 100%; max-width: 440px; font-size: 0.85rem; display: flex; justify-content: space-around;">
+          <div>
+            <div style="color: var(--text-muted);">Distractor Acc:</div>
+            <div id="feedback-dist-acc" style="font-weight: 700; font-size: 1.1rem;">100%</div>
+          </div>
+          <div>
+            <div style="color: var(--text-muted);">Adaptive Result:</div>
+            <div id="feedback-staircase" style="font-weight: 700; font-size: 1.1rem;">+1 Streak</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1.05rem;" onclick="startTrial()">Next Trial (Enter)</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-overlay" id="modal-settings" onclick="if(event.target===this)closeModal('modal-settings')">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800;">Session Settings</h3>
+        <button class="btn" onclick="closeModal('modal-settings')">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Target Modality</label>
+        <select id="setting-modality">
+          <option value="consonants">Spoken Consonants (B, C, D, F, K...)</option>
+          <option value="digits">Spoken Digits (0 - 9)</option>
+          <option value="nato">NATO Phonetics (Alpha, Bravo, Charlie...)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Distractor Type</label>
+        <select id="setting-distractor">
+          <option value="math">Spoken Arithmetic Equations ("4 + 2 = 6?")</option>
+          <option value="words">Spoken Word Check ("Is 'Blipt' real?")</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Speech Speed (<span id="rate-val">1.2</span>x)</label>
+        <input type="range" id="setting-rate" min="1.0" max="1.8" step="0.1" value="1.2" oninput="document.getElementById('rate-val').textContent=this.value">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Distractor Timeout (<span id="timeout-val">2.5</span>s)</label>
+        <input type="range" id="setting-timeout" min="1.5" max="4.0" step="0.5" value="2.5" oninput="document.getElementById('timeout-val').textContent=this.value">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">TTS Voice</label>
+        <select id="setting-voice"></select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button class="btn" onclick="testVoice()">🔊 Test Voice</button>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS MODAL -->
+  <div class="modal-overlay" id="modal-stats" onclick="if(event.target===this)closeModal('modal-stats')">
+    <div class="modal-content" style="max-width: 700px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800;">Cognitive Performance History</h3>
+        <button class="btn" onclick="closeModal('modal-stats')">✕</button>
+      </div>
+      <div style="max-height: 320px; overflow-y: auto;">
+        <table id="table-history">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Span</th>
+              <th>Targets</th>
+              <th>Recall</th>
+              <th>Dist. Acc</th>
+              <th>RT</th>
+            </tr>
+          </thead>
+          <tbody id="history-rows"></tbody>
+        </table>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+        <button class="btn" onclick="clearHistory()">Clear History</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-stats')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // AUDIO ENGINE & SYNTHESIS
+    const AudioEngine = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const Cls = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new Cls();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      beep(freq, duration = 0.12, type = 'sine') {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.15, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.01);
+      },
+      chimeSuccess() {
+        this.init();
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          setTimeout(() => this.beep(f, 0.25, 'triangle'), i * 80);
+        });
+      },
+      toneFail() {
+        this.init();
+        [392, 349, 311, 261].forEach((f, i) => {
+          setTimeout(() => this.beep(f, 0.2, 'sawtooth'), i * 100);
+        });
+      },
+      speak(text, rate = 1.2, voiceUri = '') {
+        return new Promise((resolve) => {
+          if (!('speechSynthesis' in window)) return resolve();
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(text);
+          u.rate = rate;
+          if (voiceUri) {
+            const v = window.speechSynthesis.getVoices().find(item => item.voiceURI === voiceUri);
+            if (v) u.voice = v;
+          }
+          let done = false;
+          const finish = () => { if (!done) { done = true; resolve(); } };
+          u.onend = finish;
+          u.onerror = finish;
+          setTimeout(finish, 4000); // safety fallback
+          window.speechSynthesis.speak(u);
+        });
+      }
+    };
+
+    // STATE & SETTINGS
+    const state = {
+      span: 3,
+      consecutivePasses: 0,
+      maxSpan: 3,
+      items: [],
+      currentIndex: 0,
+      currentDistractorStartTime: 0,
+      distractorTimer: null,
+      distractorResults: [],
+      userRecall: [],
+      history: JSON.parse(localStorage.getItem('audio_span_history') || '[]'),
+      settings: {
+        modality: 'consonants',
+        distractor: 'math',
+        rate: 1.2,
+        timeout: 2.5,
+        voiceUri: ''
+      }
+    };
+
+    const CONSONANTS = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Z'];
+    const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const NATO = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliett', 'Kilo', 'Lima', 'Mike', 'November', 'Oscar', 'Papa', 'Quebec', 'Romeo', 'Sierra', 'Tango', 'Uniform', 'Victor', 'Whiskey', 'X-ray', 'Yankee', 'Zulu'];
+    const REAL_WORDS = ['Planet', 'Anchor', 'Silver', 'Castle', 'Bridge', 'Forest', 'Dragon', 'Signal', 'Market', 'Temple', 'Winter', 'Rocket', 'Orange', 'Canyon', 'Doctor', 'Mirror'];
+    const PSEUDO_WORDS = ['Blipt', 'Vorm', 'Sprent', 'Cradik', 'Tarnic', 'Flester', 'Glarb', 'Drept', 'Brindle', 'Krovet', 'Scrund', 'Peldon', 'Zelmic', 'Fasken', 'Grentle', 'Dwole'];
+
+    // INIT
+    function initVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const populate = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const sel = document.getElementById('setting-voice');
+        sel.innerHTML = voices.map(v => `<option value="${v.voiceURI}">${v.name} (${v.lang})</option>`).join('');
+      };
+      populate();
+      window.speechSynthesis.onvoiceschanged = populate;
+    }
+
+    // STIMULUS GENERATION
+    function makeTrialItems(span) {
+      let pool = state.settings.modality === 'consonants' ? [...CONSONANTS] : state.settings.modality === 'digits' ? [...DIGITS] : [...NATO];
+      const items = [];
+      for (let i = 0; i < span; i++) {
+        const target = pool[Math.floor(Math.random() * pool.length)];
+        // Distractor
+        let promptText, spokenText, isCorrect;
+        if (state.settings.distractor === 'math') {
+          const a = Math.floor(Math.random() * 8) + 2;
+          const b = Math.floor(Math.random() * 8) + 2;
+          const realRes = a + b;
+          isCorrect = Math.random() < 0.5;
+          const dispRes = isCorrect ? realRes : realRes + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 2) + 1);
+          promptText = `${a} + ${b} = ${dispRes}`;
+          spokenText = `Is ${a} plus ${b} equal to ${dispRes}?`;
+        } else {
+          isCorrect = Math.random() < 0.5;
+          const word = isCorrect ? REAL_WORDS[Math.floor(Math.random()*REAL_WORDS.length)] : PSEUDO_WORDS[Math.floor(Math.random()*PSEUDO_WORDS.length)];
+          promptText = `"${word}" (Real Word?)`;
+          spokenText = `Is "${word}" a real word?`;
+        }
+        items.push({
+          target,
+          spokenTarget: state.settings.modality === 'consonants' ? `Letter: ${target}` : state.settings.modality === 'digits' ? `Digit: ${target}` : target,
+          distractor: { promptText, spokenText, isCorrect }
+        });
+      }
+      return items;
+    }
+
+    // PRESENTATION CYCLE
+    async function startTrial() {
+      AudioEngine.init();
+      state.items = makeTrialItems(state.span);
+      state.currentIndex = 0;
+      state.distractorResults = [];
+      state.userRecall = [];
+
+      showView('active');
+      runStep();
+    }
+
+    async function runStep() {
+      if (state.currentIndex >= state.items.length) {
+        enterRecallPhase();
+        return;
+      }
+
+      const item = state.items[state.currentIndex];
+      document.getElementById('active-step-indicator').textContent = `Item ${state.currentIndex + 1} of ${state.span}`;
+
+      // 1. Target presentation
+      document.getElementById('target-ui').style.display = 'block';
+      document.getElementById('distractor-ui').style.display = 'none';
+      AudioEngine.beep(550, 0.15, 'sine');
+      await AudioEngine.speak(item.spokenTarget, state.settings.rate, state.settings.voiceUri);
+
+      // Short gap
+      await new Promise(r => setTimeout(r, 400));
+
+      // 2. Distractor presentation
+      document.getElementById('target-ui').style.display = 'none';
+      document.getElementById('distractor-ui').style.display = 'flex';
+      document.getElementById('distractor-prompt-text').textContent = item.distractor.promptText;
+
+      AudioEngine.beep(440, 0.1, 'triangle');
+      state.currentDistractorStartTime = performance.now();
+      startDistractorTimer();
+
+      await AudioEngine.speak(item.distractor.spokenText, state.settings.rate, state.settings.voiceUri);
+    }
+
+    function startDistractorTimer() {
+      const bar = document.getElementById('distractor-timer-bar');
+      bar.style.transition = 'none';
+      bar.style.width = '100%';
+      setTimeout(() => {
+        bar.style.transition = `width ${state.settings.timeout}s linear`;
+        bar.style.width = '0%';
+      }, 50);
+
+      clearTimeout(state.distractorTimer);
+      state.distractorTimer = setTimeout(() => {
+        handleDistractorAnswer(null); // Timed out
+      }, state.settings.timeout * 1000);
+    }
+
+    function handleDistractorAnswer(userBool) {
+      clearTimeout(state.distractorTimer);
+      const rt = Math.round(performance.now() - state.currentDistractorStartTime);
+      const curItem = state.items[state.currentIndex];
+      const correct = userBool === curItem.distractor.isCorrect;
+
+      state.distractorResults.push({
+        correct,
+        userBool,
+        rt
+      });
+
+      if (correct) {
+        AudioEngine.beep(880, 0.1, 'sine');
+      } else {
+        AudioEngine.beep(180, 0.18, 'sawtooth');
+      }
+
+      // Check cumulative distractor accuracy
+      const correctCount = state.distractorResults.filter(r => r.correct).length;
+      const acc = Math.round((correctCount / state.distractorResults.length) * 100);
+      const alertEl = document.getElementById('gate-alert');
+      if (acc < 85) {
+        alertEl.style.display = 'flex';
+        document.getElementById('warn-acc').textContent = acc + '%';
+      } else {
+        alertEl.style.display = 'none';
+      }
+
+      state.currentIndex++;
+      setTimeout(runStep, 450);
+    }
+
+    // RECALL PHASE
+    function enterRecallPhase() {
+      showView('recall');
+      AudioEngine.beep(660, 0.2, 'triangle');
+      AudioEngine.speak('Recall sequence now', state.settings.rate, state.settings.voiceUri);
+      renderRecallSlots();
+      renderRecallKeypad();
+    }
+
+    function renderRecallSlots() {
+      const container = document.getElementById('recall-slots');
+      container.innerHTML = '';
+      for (let i = 0; i < state.span; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'slot' + (i === state.userRecall.length ? ' active' : '');
+        slot.textContent = state.userRecall[i] || '';
+        container.appendChild(slot);
+      }
+    }
+
+    function renderRecallKeypad() {
+      const grid = document.getElementById('recall-keypad');
+      grid.innerHTML = '';
+      let pool = state.settings.modality === 'consonants' ? CONSONANTS : state.settings.modality === 'digits' ? DIGITS : NATO;
+      pool.forEach(val => {
+        const btn = document.createElement('button');
+        btn.className = 'key-btn';
+        btn.textContent = val;
+        btn.onclick = () => {
+          if (state.userRecall.length < state.span) {
+            state.userRecall.push(val);
+            renderRecallSlots();
+            AudioEngine.beep(400, 0.05);
+          }
+        };
+        grid.appendChild(btn);
+      });
+    }
+
+    function handleRecallBackspace() {
+      if (state.userRecall.length > 0) {
+        state.userRecall.pop();
+        renderRecallSlots();
+      }
+    }
+
+    function handleRecallClear() {
+      state.userRecall = [];
+      renderRecallSlots();
+    }
+
+    function submitRecall() {
+      if (state.userRecall.length < state.span) {
+        alert(`Please select all ${state.span} items before submitting.`);
+        return;
+      }
+
+      showView('feedback');
+
+      const targets = state.items.map(i => i.target);
+      const isRecallPass = targets.every((t, idx) => t === state.userRecall[idx]);
+
+      const distCorrect = state.distractorResults.filter(r => r.correct).length;
+      const distAcc = Math.round((distCorrect / state.distractorResults.length) * 100);
+      const avgRt = Math.round(state.distractorResults.reduce((acc, r) => acc + r.rt, 0) / state.distractorResults.length);
+
+      // STAIRCASE ADAPTIVE LOGIC
+      let staircaseResult = '';
+      if (isRecallPass && distAcc >= 85) {
+        state.consecutivePasses++;
+        if (state.consecutivePasses >= 3) {
+          state.span = Math.min(12, state.span + 1);
+          state.consecutivePasses = 0;
+          staircaseResult = 'LEVEL UP (+1 SPAN)';
+          AudioEngine.chimeSuccess();
+        } else {
+          staircaseResult = `Streak: ${state.consecutivePasses}/3`;
+          AudioEngine.beep(880, 0.2);
+        }
+      } else {
+        state.consecutivePasses = 0;
+        if (!isRecallPass || distAcc < 80) {
+          state.span = Math.max(2, state.span - 1);
+          staircaseResult = 'LEVEL DOWN (-1 SPAN)';
+          AudioEngine.toneFail();
+        } else {
+          staircaseResult = 'Maintained';
+          AudioEngine.toneFail();
+        }
+      }
+
+      state.maxSpan = Math.max(state.maxSpan, state.span);
+
+      // UI Update
+      document.getElementById('feedback-headline').textContent = isRecallPass ? 'Trial Passed' : 'Trial Failed';
+      document.getElementById('feedback-headline').style.color = isRecallPass ? 'var(--emerald)' : 'var(--crimson)';
+      document.getElementById('feedback-dist-acc').textContent = `${distAcc}% (${distCorrect}/${state.distractorResults.length})`;
+      document.getElementById('feedback-staircase').textContent = staircaseResult;
+
+      const seqRow = document.getElementById('feedback-sequence-row');
+      seqRow.innerHTML = '';
+      targets.forEach((t, i) => {
+        const box = document.createElement('div');
+        const match = t === state.userRecall[i];
+        box.className = 'compare-box ' + (match ? 'box-match' : 'box-mismatch');
+        box.textContent = state.userRecall[i] || '—';
+        seqRow.appendChild(box);
+      });
+
+      // Save History
+      state.history.unshift({
+        span: state.items.length,
+        targets,
+        recalled: state.userRecall,
+        pass: isRecallPass,
+        distAcc,
+        avgRt,
+        time: new Date().toLocaleTimeString()
+      });
+      localStorage.setItem('audio_span_history', JSON.stringify(state.history.slice(0, 50)));
+
+      updateStatsBar();
+    }
+
+    function updateStatsBar() {
+      document.getElementById('stat-current-span').textContent = state.span;
+      document.getElementById('stat-max-span').textContent = state.maxSpan;
+
+      const pips = document.querySelectorAll('#streak-pips .dot');
+      pips.forEach((pip, idx) => {
+        if (idx < state.consecutivePasses) pip.classList.add('active');
+        else pip.classList.remove('active');
+      });
+
+      if (state.history.length > 0) {
+        const totalDistAcc = Math.round(state.history.reduce((a, b) => a + b.distAcc, 0) / state.history.length);
+        const meanRt = Math.round(state.history.reduce((a, b) => a + b.avgRt, 0) / state.history.length);
+        document.getElementById('stat-dist-acc').textContent = totalDistAcc + '%';
+        document.getElementById('stat-dist-rt').textContent = meanRt + ' ms';
+      }
+    }
+
+    function showView(viewName) {
+      document.getElementById('view-idle').style.display = viewName === 'idle' ? 'flex' : 'none';
+      document.getElementById('view-active').style.display = viewName === 'active' ? 'flex' : 'none';
+      document.getElementById('view-recall').style.display = viewName === 'recall' ? 'flex' : 'none';
+      document.getElementById('view-feedback').style.display = viewName === 'feedback' ? 'flex' : 'none';
+    }
+
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+      if (id === 'modal-stats') renderHistoryTable();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function renderHistoryTable() {
+      const tbody = document.getElementById('history-rows');
+      tbody.innerHTML = state.history.map((h, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td style="font-weight: 700; color: var(--cyan);">${h.span}</td>
+          <td>${h.targets.join(', ')}</td>
+          <td style="color: ${h.pass ? 'var(--emerald)' : 'var(--crimson)'}; font-weight: 700;">${h.pass ? 'PASS' : 'FAIL'}</td>
+          <td>${h.distAcc}%</td>
+          <td>${h.avgRt}ms</td>
+        </tr>
+      `).join('');
+    }
+
+    function clearHistory() {
+      if (confirm('Clear all session history?')) {
+        state.history = [];
+        localStorage.removeItem('audio_span_history');
+        renderHistoryTable();
+        updateStatsBar();
+      }
+    }
+
+    function saveSettings() {
+      state.settings.modality = document.getElementById('setting-modality').value;
+      state.settings.distractor = document.getElementById('setting-distractor').value;
+      state.settings.rate = parseFloat(document.getElementById('setting-rate').value);
+      state.settings.timeout = parseFloat(document.getElementById('setting-timeout').value);
+      state.settings.voiceUri = document.getElementById('setting-voice').value;
+      closeModal('modal-settings');
+    }
+
+    function testVoice() {
+      const uri = document.getElementById('setting-voice').value;
+      const rate = parseFloat(document.getElementById('setting-rate').value);
+      AudioEngine.speak('Audio-Span vocal calibration ready.', rate, uri);
+    }
+
+    // KEYBOARD SHORTCUTS
+    window.addEventListener('keydown', (e) => {
+      const activeDist = document.getElementById('distractor-ui');
+      if (activeDist && activeDist.style.display !== 'none') {
+        if (e.key === 't' || e.key === 'T' || e.key === 'ArrowLeft' || e.key === '1') {
+          handleDistractorAnswer(true);
+        } else if (e.key === 'f' || e.key === 'F' || e.key === 'ArrowRight' || e.key === '2') {
+          handleDistractorAnswer(false);
+        }
+      }
+      if (document.getElementById('view-feedback').style.display === 'flex' && e.key === 'Enter') {
+        startTrial();
+      }
+    });
+
+    initVoices();
+    updateStatsBar();
+  </script>
+</body>
+</html>
